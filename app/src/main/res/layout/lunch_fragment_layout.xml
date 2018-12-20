@@ -22,7 +22,7 @@
             android:divider="@android:color/transparent"
             android:dividerHeight="2sp"
             android:gravity="left"
-            android:stretchMode="none" >
+            android:stretchMode="none">
 
         </ListView>
 
