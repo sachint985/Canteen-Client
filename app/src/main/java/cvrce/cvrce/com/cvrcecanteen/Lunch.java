@@ -14,14 +14,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.github.ag.floatingactionmenu.OptionsFabLayout;
 import com.squareup.picasso.Picasso;
-import com.yarolegovich.lovelydialog.LovelyChoiceDialog;
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
-import com.yarolegovich.lovelydialog.LovelyTextInputDialog;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +22,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
+
 
 import nl.dionsegijn.steppertouch.OnStepCallback;
 import nl.dionsegijn.steppertouch.Stepper;
@@ -124,7 +117,7 @@ public class Lunch extends Fragment {
         ArrayList<Integer> price;
         ArrayList<String> description;
         private Context context;
-
+        private int amount=0;
         public MyAdapterOne(ArrayList<String> product, ArrayList<String> image, ArrayList<String> type, ArrayList<Integer> price, ArrayList<String> description, Context context) {
             this.product = product;
             this.image = image;
