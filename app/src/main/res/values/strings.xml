@@ -7,4 +7,12 @@
     <string name="nav_header_desc">Navigations</string>
     <string name="action_settings">Logout</string>
     <string name="item_type_logo">Item type logo</string>
+
+    <string name="nav_orderFood">Order Food</string>
+    <string name="nav_prevOrders">Previous Orders</string>
+    <string name="nav_menu">Menu</string>
+    <string name="nav_wallet">Wallet</string>
+    <string name="nav_communicate">Communicate</string>
+    <string name="nav_help">Help</string>
+    <string name="nav_appFeedback">App Feedback</string>
 </resources>
