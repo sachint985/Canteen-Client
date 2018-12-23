@@ -8,20 +8,24 @@ import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 public class SplashActivity extends AppCompatActivity {
 
-    long splashTime=200, time=0;
+    final static int SPLASH_TIME_OUT = 3000;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        LayoutInflater layoutInflater;
+        ViewGroup root;
+        final View view = (CoordinatorLayout)findViewById(R.id.splash);
 
-        final RelativeLayout rl = findViewById(R.id.splash);
 
         new Handler().postDelayed(new Runnable() {
             @Override

@@ -5,33 +5,33 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_orderFood"
-            android:icon="@drawable/order_food"
-            android:title="@string/nav_orderFood" />
+            android:id="@+id/nav_camera"
+            android:icon="@drawable/icon_order"
+            android:title="My Orders" />
         <item
-            android:id="@+id/nav_prevOrders"
-            android:icon="@drawable/prev_orders"
-            android:title="@string/nav_prevOrders" />
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/icon_order_history"
+            android:title="Order History" />
         <item
-            android:id="@+id/nav_menu"
-            android:icon="@drawable/menu"
-            android:title="@string/nav_menu" />
+            android:id="@+id/nav_slideshow"
+            android:icon="@drawable/icon_food_menu"
+            android:title="Food Menu" />
         <item
-            android:id="@+id/nav_wallet"
-            android:icon="@drawable/wallet"
-            android:title="@string/nav_wallet" />
+            android:id="@+id/nav_manage"
+            android:icon="@drawable/icon_owallet"
+            android:title="My Wallet" />
     </group>
 
-    <item android:title="@string/nav_communicate">
+    <item android:title="Communicate">
         <menu>
             <item
-                android:id="@+id/nav_help"
-                android:icon="@drawable/help"
-                android:title="@string/nav_help" />
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Feedback" />
             <item
-                android:id="@+id/nav_feedback"
-                android:icon="@drawable/app_feedback"
-                android:title="@string/nav_appFeedback" />
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Help" />
         </menu>
     </item>
 
