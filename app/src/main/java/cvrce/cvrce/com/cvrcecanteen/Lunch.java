@@ -1,8 +1,10 @@
 package cvrce.cvrce.com.cvrcecanteen;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,10 +38,12 @@ public class Lunch extends Fragment {
     ArrayList<String> type ;
     ArrayList<Integer> price;
     ArrayList<String> description ;
+    Bundle cart = new Bundle();
+
     ListView listLunch;
     MyAdapterOne adaper;
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.lunch_fragment_layout, container, false);
         product = new ArrayList<>();
         image = new ArrayList<>();
@@ -47,9 +52,19 @@ public class Lunch extends Fragment {
         description = new ArrayList<>();
         listLunch = view.findViewById(R.id.list_lunch);
         Log.d("timeItem","OnCreate");
+        Button goToCart = view.findViewById(R.id.goToCartBtn);
+
+        goToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(),CartActivity.class);
+                i.putExtra("Cart",cart);
+                startActivity(i);
+            }
+        });
         new Lunch.FetchData().execute();
 
-        listLunch = view.findViewById(R.id.list_lunch);
+        //listLunch = view.findViewById(R.id.list_lunch);
         adaper = new MyAdapterOne(product,image, type, price, description, getContext());
         listLunch.setAdapter(adaper);
         return view;
@@ -116,8 +131,9 @@ public class Lunch extends Fragment {
         ArrayList<String> type ;
         ArrayList<Integer> price;
         ArrayList<String> description;
+        ArrayList<Integer> quantity;
         private Context context;
-        private int amount=0;
+        //private int amount=0;
         public MyAdapterOne(ArrayList<String> product, ArrayList<String> image, ArrayList<String> type, ArrayList<Integer> price, ArrayList<String> description, Context context) {
             this.product = product;
             this.image = image;
@@ -141,6 +157,7 @@ public class Lunch extends Fragment {
         public long getItemId(int i) {
             return 0;
         }
+
 
         @Override
         public View getView(final int i, View view, ViewGroup viewGroup) {
@@ -174,8 +191,15 @@ public class Lunch extends Fragment {
                 @Override
                 public void onStep(int value, boolean positive) {
                     Toast.makeText(context, value + "", Toast.LENGTH_SHORT).show();
+                    quantity.set(i, value);
                 }
             });
+
+
+            cart.putIntegerArrayList("price", price);
+            cart.putIntegerArrayList("quantity",quantity);
+            cart.putStringArrayList("product",product);
+
 
             return view;
         }

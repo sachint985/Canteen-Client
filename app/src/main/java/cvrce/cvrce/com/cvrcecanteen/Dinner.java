@@ -1,6 +1,7 @@
 package cvrce.cvrce.com.cvrcecanteen;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -41,6 +43,7 @@ public class Dinner extends Fragment {
     ArrayList<String> type ;
     ArrayList<Integer> price;
     ArrayList<String> description ;
+    Bundle cart = new Bundle();
     ListView listDinner;
     MyAdapterOne adaper;
 
@@ -53,6 +56,17 @@ public class Dinner extends Fragment {
         description = new ArrayList<>();
         listDinner = view.findViewById(R.id.list_dinner);
         Log.d("timeItem","OnCreate");
+        Button goToCart = view.findViewById(R.id.goToCartBtn);
+
+        goToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(),CartActivity.class);
+                i.putExtra("Cart",cart);
+                startActivity(i);
+            }
+        });
+
         new Dinner.FetchData().execute();
 
         adaper = new MyAdapterOne(product,image, type, price, description, getContext());
@@ -120,6 +134,7 @@ public class Dinner extends Fragment {
         ArrayList<String> type ;
         ArrayList<Integer> price;
         ArrayList<String> description;
+        ArrayList<Integer> quantity;
         private Context context;
 
         public MyAdapterOne(ArrayList<String> product, ArrayList<String> image, ArrayList<String> type, ArrayList<Integer> price, ArrayList<String> description, Context context) {
@@ -178,8 +193,13 @@ public class Dinner extends Fragment {
                 @Override
                 public void onStep(int value, boolean positive) {
                     Toast.makeText(context, value + "", Toast.LENGTH_SHORT).show();
+                    quantity.set(i, value);
                 }
             });
+
+            cart.putIntegerArrayList("price", price);
+            cart.putIntegerArrayList("quantity",quantity);
+            cart.putStringArrayList("product",product);
 
             return view;
         }

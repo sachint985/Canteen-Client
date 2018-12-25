@@ -57,5 +57,6 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_below="@+id/viewpager"
-        android:orientation="vertical"></LinearLayout>
+        android:orientation="vertical" />
+
 </RelativeLayout>
