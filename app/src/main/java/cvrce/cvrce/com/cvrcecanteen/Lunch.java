@@ -131,7 +131,9 @@ public class Lunch extends Fragment {
         ArrayList<String> type ;
         ArrayList<Integer> price;
         ArrayList<String> description;
-        ArrayList<Integer> quantity;
+        ArrayList<Integer> orderQuantity;
+        ArrayList<Integer> orderPrice;
+        ArrayList<String> orderProduct;
         private Context context;
         //private int amount=0;
         public MyAdapterOne(ArrayList<String> product, ArrayList<String> image, ArrayList<String> type, ArrayList<Integer> price, ArrayList<String> description, Context context) {
@@ -191,14 +193,17 @@ public class Lunch extends Fragment {
                 @Override
                 public void onStep(int value, boolean positive) {
                     Toast.makeText(context, value + "", Toast.LENGTH_SHORT).show();
-                    quantity.set(i, value);
+                    orderQuantity.set(i, value);
+                    orderPrice.set(i, price.get(i));
+                    orderProduct.set(i, product.get(i));
+
                 }
             });
 
 
-            cart.putIntegerArrayList("price", price);
-            cart.putIntegerArrayList("quantity",quantity);
-            cart.putStringArrayList("product",product);
+            cart.putIntegerArrayList("price", orderPrice);
+            cart.putIntegerArrayList("quantity",orderQuantity);
+            cart.putStringArrayList("product",orderProduct);
 
 
             return view;
