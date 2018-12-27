@@ -31,6 +31,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import nl.dionsegijn.steppertouch.OnStepCallback;
@@ -44,6 +46,9 @@ public class Dinner extends Fragment {
     ArrayList<Integer> price;
     ArrayList<String> description ;
     Bundle cart = new Bundle();
+    HashSet<String> orderProduct = new HashSet<>();
+    HashMap<String, Integer> orderQuantity = new HashMap<>();
+    HashMap<String, Integer> orderPrice = new HashMap<>();
     ListView listDinner;
     MyAdapterOne adaper;
 
@@ -62,7 +67,13 @@ public class Dinner extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(),CartActivity.class);
-                i.putExtra("Cart",cart);
+//                cart.putSerializable("price", orderPrice);
+//                cart.putSerializable("quantity", orderQuantity);
+//                i.putExtra("Cart",cart);
+//                Log.d("cartdebug", orderQuantity.toString());
+                i.putExtra("quantity", orderQuantity);
+                i.putExtra("price", orderPrice);
+                i.putExtra("product", orderProduct);
                 startActivity(i);
             }
         });
@@ -82,7 +93,7 @@ public class Dinner extends Fragment {
             Log.d("mytag", "Fetch data background");
             StringBuilder sb = new StringBuilder("");
             try {
-                URL url = new URL("http://172.29.5.23/collegecanteen/fetch_todays_meal.php?dinner=1");
+                URL url = new URL("http://192.168.1.103/collegecanteen/fetch_todays_meal.php?dinner=1");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
@@ -134,9 +145,6 @@ public class Dinner extends Fragment {
         ArrayList<String> type ;
         ArrayList<Integer> price;
         ArrayList<String> description;
-        ArrayList<Integer> orderPrice;
-        ArrayList<String> orderProduct;
-        ArrayList<Integer> orderQuantity;
         private Context context;
 
         public MyAdapterOne(ArrayList<String> product, ArrayList<String> image, ArrayList<String> type, ArrayList<Integer> price, ArrayList<String> description, Context context) {
@@ -195,15 +203,18 @@ public class Dinner extends Fragment {
                 @Override
                 public void onStep(int value, boolean positive) {
                     Toast.makeText(context, value + "", Toast.LENGTH_SHORT).show();
-                    orderQuantity.set(i, value);
-                    orderProduct.set(i, product.get(i));
-                    orderPrice.set(i, price.get(i));
+                    if(orderQuantity.containsKey(product.get(i))){
+                        orderQuantity.put(product.get(i), value);
+                    }
+                    else{
+                        orderPrice.put(product.get(i), price.get(i));
+                        orderQuantity.put(product.get(i), value);
+                        orderProduct.add(product.get(i));
+                    }
                 }
             });
 
-            cart.putIntegerArrayList("price", orderPrice);
-            cart.putIntegerArrayList("quantity",orderQuantity);
-            cart.putStringArrayList("product",orderProduct);
+
 
             return view;
         }

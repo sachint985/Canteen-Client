@@ -25,6 +25,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 
 import nl.dionsegijn.steppertouch.OnStepCallback;
@@ -39,6 +41,9 @@ public class Lunch extends Fragment {
     ArrayList<Integer> price;
     ArrayList<String> description ;
     Bundle cart = new Bundle();
+    HashSet<String> orderProduct = new HashSet<>();
+    HashMap<String, Integer> orderQuantity = new HashMap<>();
+    HashMap<String, Integer> orderPrice = new HashMap<>();
 
     ListView listLunch;
     MyAdapterOne adaper;
@@ -58,7 +63,14 @@ public class Lunch extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(),CartActivity.class);
-                i.putExtra("Cart",cart);
+//                cart.putSerializable("price", orderPrice);
+//                cart.putSerializable("quantity", orderQuantity);
+//                i.putExtra("Cart",cart);
+//                Log.d("cartdebug", orderQuantity.toString());
+
+                i.putExtra("quantity", orderQuantity);
+                i.putExtra("price", orderPrice);
+                i.putExtra("product", orderProduct);
                 startActivity(i);
             }
         });
@@ -67,6 +79,9 @@ public class Lunch extends Fragment {
         //listLunch = view.findViewById(R.id.list_lunch);
         adaper = new MyAdapterOne(product,image, type, price, description, getContext());
         listLunch.setAdapter(adaper);
+
+        //Log.d("cartdebug", orderQuantity.toString());
+
         return view;
     }
     
@@ -78,7 +93,7 @@ public class Lunch extends Fragment {
             Log.d("mytag", "Fetch data background");
             StringBuilder sb = new StringBuilder("");
             try {
-                URL url = new URL("http://172.29.5.23/collegecanteen/fetch_todays_meal.php?lunch=1");
+                URL url = new URL("http://192.168.1.103/collegecanteen/fetch_todays_meal.php?lunch=1");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
@@ -115,7 +130,7 @@ public class Lunch extends Fragment {
 
         @Override
         protected void onPostExecute(Object o) {
-            Log.d("mytag", "post execute"+product.get(0));
+            //Log.d("mytag", "post execute"+product.get(0));
 
             adaper.notifyDataSetChanged();
             super.onPostExecute(o);
@@ -131,9 +146,7 @@ public class Lunch extends Fragment {
         ArrayList<String> type ;
         ArrayList<Integer> price;
         ArrayList<String> description;
-        ArrayList<Integer> orderQuantity;
-        ArrayList<Integer> orderPrice;
-        ArrayList<String> orderProduct;
+
         private Context context;
         //private int amount=0;
         public MyAdapterOne(ArrayList<String> product, ArrayList<String> image, ArrayList<String> type, ArrayList<Integer> price, ArrayList<String> description, Context context) {
@@ -193,18 +206,22 @@ public class Lunch extends Fragment {
                 @Override
                 public void onStep(int value, boolean positive) {
                     Toast.makeText(context, value + "", Toast.LENGTH_SHORT).show();
-                    orderQuantity.set(i, value);
-                    orderPrice.set(i, price.get(i));
-                    orderProduct.set(i, product.get(i));
+                    if(orderQuantity.containsKey(product.get(i))){
+                        //Log.d("cartdebug", "key found");
+                        orderQuantity.put(product.get(i), value);
+                    }
+                    else{
+                        orderPrice.put(product.get(i), price.get(i));
+                        orderQuantity.put(product.get(i), value);
+                        orderProduct.add(product.get(i));
+                        //Log.d("cartdebug", "key not found");
+                    }
 
                 }
             });
 
 
-            cart.putIntegerArrayList("price", orderPrice);
-            cart.putIntegerArrayList("quantity",orderQuantity);
-            cart.putStringArrayList("product",orderProduct);
-
+            //Log.d("cartdebug", orderPrice.toString());
 
             return view;
         }
