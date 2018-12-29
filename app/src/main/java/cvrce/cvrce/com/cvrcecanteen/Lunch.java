@@ -1,10 +1,11 @@
 package cvrce.cvrce.com.cvrcecanteen;
 
 import android.content.Context;
-import android.content.Intent;
+
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 
+import io.saeid.fabloading.LoadingView;
 import nl.dionsegijn.steppertouch.OnStepCallback;
 import nl.dionsegijn.steppertouch.Stepper;
 import nl.dionsegijn.steppertouch.StepperTouch;
@@ -40,15 +42,15 @@ public class Lunch extends Fragment {
     ArrayList<String> type ;
     ArrayList<Integer> price;
     ArrayList<String> description ;
-    Bundle cart = new Bundle();
+    Button btn_cart;
+    ListView listLunch;
+    MyAdapterOne adaper;
+    LoadingView loadingView;
     HashSet<String> orderProduct = new HashSet<>();
     HashMap<String, Integer> orderQuantity = new HashMap<>();
     HashMap<String, Integer> orderPrice = new HashMap<>();
 
-    ListView listLunch;
-    MyAdapterOne adaper;
-
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.lunch_fragment_layout, container, false);
         product = new ArrayList<>();
         image = new ArrayList<>();
@@ -56,32 +58,22 @@ public class Lunch extends Fragment {
         price = new ArrayList<>();
         description = new ArrayList<>();
         listLunch = view.findViewById(R.id.list_lunch);
+        btn_cart = view.findViewById(R.id.goToCartBtn);
+        btn_cart.setEnabled(false);
+        loadingView = (LoadingView) view.findViewById(R.id.loading_view);
+
+        loadingView.addAnimation(Color.CYAN, R.drawable.food_1, LoadingView.FROM_LEFT);
+        loadingView.addAnimation(Color.GRAY, R.drawable.restaurant, LoadingView.FROM_TOP);
+        loadingView.addAnimation(Color.MAGENTA, R.drawable.food_2, LoadingView.FROM_RIGHT);
+        loadingView.addAnimation(Color.BLUE, R.drawable.food_3, LoadingView.FROM_BOTTOM);
+        loadingView.startAnimation();
+        loadingView.setVisibility(View.VISIBLE);
         Log.d("timeItem","OnCreate");
-        Button goToCart = view.findViewById(R.id.goToCartBtn);
-
-        goToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getContext(),CartActivity.class);
-//                cart.putSerializable("price", orderPrice);
-//                cart.putSerializable("quantity", orderQuantity);
-//                i.putExtra("Cart",cart);
-//                Log.d("cartdebug", orderQuantity.toString());
-
-                i.putExtra("quantity", orderQuantity);
-                i.putExtra("price", orderPrice);
-                i.putExtra("product", orderProduct);
-                startActivity(i);
-            }
-        });
         new Lunch.FetchData().execute();
 
-        //listLunch = view.findViewById(R.id.list_lunch);
+        listLunch = view.findViewById(R.id.list_lunch);
         adaper = new MyAdapterOne(product,image, type, price, description, getContext());
         listLunch.setAdapter(adaper);
-
-        //Log.d("cartdebug", orderQuantity.toString());
-
         return view;
     }
     
@@ -90,10 +82,11 @@ public class Lunch extends Fragment {
 
         @Override
         protected Object doInBackground(Object[] objects) {
+            Looper.prepare();
             Log.d("mytag", "Fetch data background");
             StringBuilder sb = new StringBuilder("");
             try {
-                URL url = new URL("http://192.168.1.103/collegecanteen/fetch_todays_meal.php?lunch=1");
+                URL url = new URL("http://192.168.43.214/collegecanteen/fetch_todays_meal.php?lunch=1");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
@@ -121,7 +114,7 @@ public class Lunch extends Fragment {
 
 
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+                Toast.makeText(getContext(), "Failed to connect the college etwork", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
             }
 
@@ -130,9 +123,18 @@ public class Lunch extends Fragment {
 
         @Override
         protected void onPostExecute(Object o) {
-            //Log.d("mytag", "post execute"+product.get(0));
+            loadingView.setVisibility(View.INVISIBLE);
 
-            adaper.notifyDataSetChanged();
+            if(product.size() > 0) {
+                Log.d("mytag", "post execute" + product.get(0));
+                adaper.notifyDataSetChanged();
+            }
+            else {
+                ImageView imageView = getView().findViewById(R.id.image_sorry);
+                imageView.setVisibility(View.VISIBLE);
+                Button cart_button = (Button)getView().findViewById(R.id.goToCartBtn);
+                cart_button.setEnabled(false);
+            }
             super.onPostExecute(o);
         }
     }
@@ -146,9 +148,8 @@ public class Lunch extends Fragment {
         ArrayList<String> type ;
         ArrayList<Integer> price;
         ArrayList<String> description;
-
         private Context context;
-        //private int amount=0;
+        private int amount=0;
         public MyAdapterOne(ArrayList<String> product, ArrayList<String> image, ArrayList<String> type, ArrayList<Integer> price, ArrayList<String> description, Context context) {
             this.product = product;
             this.image = image;
@@ -172,7 +173,6 @@ public class Lunch extends Fragment {
         public long getItemId(int i) {
             return 0;
         }
-
 
         @Override
         public View getView(final int i, View view, ViewGroup viewGroup) {
@@ -202,26 +202,34 @@ public class Lunch extends Fragment {
             stepperTouch.stepper.setMin(0);
             stepperTouch.stepper.setMax(8);
             stepperTouch.enableSideTap(true);
+
             stepperTouch.stepper.addStepCallback(new OnStepCallback() {
                 @Override
                 public void onStep(int value, boolean positive) {
-                    Toast.makeText(context, value + "", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), value+"", Toast.LENGTH_LONG).show();
                     if(orderQuantity.containsKey(product.get(i))){
-                        //Log.d("cartdebug", "key found");
-                        orderQuantity.put(product.get(i), value);
+                        if(value==0){
+                            orderQuantity.remove(product.get(i));
+                        }else
+                            orderQuantity.put(product.get(i), value);
+
                     }
                     else{
+                        if(value==0){
+                            orderPrice.remove(product.get(i));
+                            orderQuantity.remove(product.get(i));
+                            orderProduct.remove(product.get(i));
+                        }
                         orderPrice.put(product.get(i), price.get(i));
                         orderQuantity.put(product.get(i), value);
                         orderProduct.add(product.get(i));
-                        //Log.d("cartdebug", "key not found");
                     }
-
+                    if(orderQuantity.isEmpty())
+                        btn_cart.setEnabled(false);
+                    else
+                        btn_cart.setEnabled(true);
                 }
             });
-
-
-            //Log.d("cartdebug", orderPrice.toString());
 
             return view;
         }

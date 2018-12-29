@@ -24,9 +24,8 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         LayoutInflater layoutInflater;
-        ViewGroup root;
-        final View view = (CoordinatorLayout)findViewById(R.id.splash);
 
+        final RelativeLayout rl = findViewById(R.id.splash);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -38,7 +37,7 @@ public class SplashActivity extends AppCompatActivity {
                     finish();
                 }
                 else{
-                    Snackbar snackbar = Snackbar.make(view, "No Internet Connection", Snackbar.LENGTH_INDEFINITE).
+                    Snackbar snackbar = Snackbar.make(rl, "No Internet Connection", Snackbar.LENGTH_INDEFINITE).
                             setAction("Retry", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {

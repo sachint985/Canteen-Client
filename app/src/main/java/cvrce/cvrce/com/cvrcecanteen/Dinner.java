@@ -2,8 +2,10 @@ package cvrce.cvrce.com.cvrcecanteen;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,8 +35,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
+import io.saeid.fabloading.LoadingView;
 import nl.dionsegijn.steppertouch.OnStepCallback;
 import nl.dionsegijn.steppertouch.StepperTouch;
 
@@ -49,8 +53,10 @@ public class Dinner extends Fragment {
     HashSet<String> orderProduct = new HashSet<>();
     HashMap<String, Integer> orderQuantity = new HashMap<>();
     HashMap<String, Integer> orderPrice = new HashMap<>();
+    Button btn_cart;
     ListView listDinner;
     MyAdapterOne adaper;
+    LoadingView loadingView;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dinner_fragment_layout, container, false);
@@ -59,7 +65,18 @@ public class Dinner extends Fragment {
         type = new ArrayList<>();
         price = new ArrayList<>();
         description = new ArrayList<>();
+
+        btn_cart = view.findViewById(R.id.goToCartBtn);
+        btn_cart.setEnabled(false);
         listDinner = view.findViewById(R.id.list_dinner);
+        loadingView = view.findViewById(R.id.loading_view);
+
+        loadingView.addAnimation(Color.CYAN, R.drawable.food_1, LoadingView.FROM_LEFT);
+        loadingView.addAnimation(Color.GRAY, R.drawable.restaurant, LoadingView.FROM_TOP);
+        loadingView.addAnimation(Color.MAGENTA, R.drawable.food_2, LoadingView.FROM_RIGHT);
+        loadingView.addAnimation(Color.BLUE, R.drawable.food_3, LoadingView.FROM_BOTTOM);
+        loadingView.startAnimation();
+        loadingView.setVisibility(View.VISIBLE);
         Log.d("timeItem","OnCreate");
         Button goToCart = view.findViewById(R.id.goToCartBtn);
 
@@ -90,10 +107,11 @@ public class Dinner extends Fragment {
 
         @Override
         protected Object doInBackground(Object[] objects) {
+            Looper.prepare();
             Log.d("mytag", "Fetch data background");
             StringBuilder sb = new StringBuilder("");
             try {
-                URL url = new URL("http://192.168.1.103/collegecanteen/fetch_todays_meal.php?dinner=1");
+                URL url = new URL("http://192.168.43.214/collegecanteen/fetch_todays_meal.php?dinner=1");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
@@ -121,7 +139,7 @@ public class Dinner extends Fragment {
 
 
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+                Toast.makeText(getActivity().getApplicationContext(), "Failed to connect to the College Network", Toast.LENGTH_LONG).show();
                 e.printStackTrace();
             }
 
@@ -130,8 +148,18 @@ public class Dinner extends Fragment {
 
         @Override
         protected void onPostExecute(Object o) {
-            Log.d("mytag", "post execute"+product.get(0));
-            adaper.notifyDataSetChanged();
+            loadingView.setVisibility(View.INVISIBLE);
+
+            if(product.size() > 0) {
+                Log.d("mytag", "post execute" + product.get(0));
+                adaper.notifyDataSetChanged();
+            }
+            else {
+                ImageView imageView = getView().findViewById(R.id.image_sorry);
+                imageView.setVisibility(View.VISIBLE);
+                Button button = getView().findViewById(R.id.goToCartBtn);
+                button.setEnabled(false);
+            }
             super.onPostExecute(o);
         }
     }
@@ -202,22 +230,36 @@ public class Dinner extends Fragment {
             stepperTouch.stepper.addStepCallback(new OnStepCallback() {
                 @Override
                 public void onStep(int value, boolean positive) {
-                    Toast.makeText(context, value + "", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), value+"", Toast.LENGTH_LONG).show();
                     if(orderQuantity.containsKey(product.get(i))){
+                        if(value==0){
+                            orderQuantity.remove(product.get(i));
+                        }else
                         orderQuantity.put(product.get(i), value);
+
                     }
                     else{
+                        if(value==0){
+                        orderPrice.remove(product.get(i));
+                        orderQuantity.remove(product.get(i));
+                        orderProduct.remove(product.get(i));
+                        }
                         orderPrice.put(product.get(i), price.get(i));
                         orderQuantity.put(product.get(i), value);
                         orderProduct.add(product.get(i));
                     }
+                    if(orderQuantity.isEmpty())
+                        btn_cart.setEnabled(false);
+                    else
+                        btn_cart.setEnabled(true);
                 }
             });
-
 
 
             return view;
         }
     }
+
+
 
 }
