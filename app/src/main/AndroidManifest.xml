@@ -38,8 +38,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CanteenLogin"
-            android:label="@string/title_activity_canteen_login"></activity>
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login"></activity>
     </application>
 
 </manifest>

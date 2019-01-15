@@ -3,6 +3,8 @@ package cvrce.cvrce.com.cvrcecanteen;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -19,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,6 +32,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +45,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class CanteenLogin extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -65,7 +73,7 @@ public class CanteenLogin extends AppCompatActivity implements LoaderCallbacks<C
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_canteen_login);
+        setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -192,7 +200,7 @@ public class CanteenLogin extends AppCompatActivity implements LoaderCallbacks<C
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return true;
     }
 
     private boolean isPasswordValid(String password) {
@@ -273,7 +281,7 @@ public class CanteenLogin extends AppCompatActivity implements LoaderCallbacks<C
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(CanteenLogin.this,
+                new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
@@ -311,8 +319,34 @@ public class CanteenLogin extends AppCompatActivity implements LoaderCallbacks<C
             try {
                 // Simulate network access.
                 Thread.sleep(2000);
+
+                HttpURLConnection connection = InternetData.getHTTPConnected(getString(R.string.url)+"/collegecanteen/canteen_login.php", true, true, "POST");
+                ArrayList<String> key = new ArrayList<>();
+                ArrayList<String> value = new ArrayList<>();
+                key.add(mEmail);
+                value.add(mPassword);
+
+                String postData = InternetData.encData(key, value, "UTF-8");
+                InternetData.writeData(connection, postData);
+                BufferedReader reader = InternetData.readData(connection);
+
+                String sb = "";
+                String s="";
+                while((s=reader.readLine())!=null){
+                    sb+=s;
+                }
+                Log.d("myapp", sb);
+                if(s.equals("true"))
+                    return true;
+                else
+                    return false;
+
             } catch (InterruptedException e) {
                 return false;
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             for (String credential : DUMMY_CREDENTIALS) {
@@ -333,6 +367,14 @@ public class CanteenLogin extends AppCompatActivity implements LoaderCallbacks<C
             showProgress(false);
 
             if (success) {
+                SharedPreferences preferences = getSharedPreferences(MainActivity.mySharedPref, 0);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean(MainActivity.Logined, true);
+                editor.putString(MainActivity.user, mEmail);
+                editor.commit();
+                editor.apply();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

@@ -1,5 +1,8 @@
 package cvrce.cvrce.com.cvrcecanteen;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,6 +22,11 @@ import com.ogaclejapan.smarttablayout.SmartTabLayout;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    protected static final String mySharedPref = "college_canteen";
+    protected static final String Logined = "userlogin";
+    protected static final String user = "user";
+
+
     ViewPager viewPager;
     ViewPageAdapter viewPageAdapter;
 
@@ -26,6 +34,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -71,7 +81,15 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            SharedPreferences preferences = getSharedPreferences(MainActivity.mySharedPref, 0);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(MainActivity.user, null);
+            editor.putBoolean(MainActivity.Logined, false);
+            editor.commit();
+            editor.apply();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

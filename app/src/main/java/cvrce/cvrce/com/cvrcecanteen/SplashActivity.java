@@ -2,6 +2,7 @@ package cvrce.cvrce.com.cvrcecanteen;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,10 +32,17 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if(isOnline()){
-                    Intent i = new Intent(SplashActivity.this, MainActivity.class);
-                    startActivity(i);
-
-                    finish();
+                    SharedPreferences preferences = getSharedPreferences(MainActivity.mySharedPref, 0);
+                    if(preferences.getBoolean(MainActivity.Logined, false)) {
+                        Intent i = new Intent(SplashActivity.this, MainActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+                    else{
+                       Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                       startActivity(intent);
+                       finish();
+                    }
                 }
                 else{
                     Snackbar snackbar = Snackbar.make(rl, "No Internet Connection", Snackbar.LENGTH_INDEFINITE).

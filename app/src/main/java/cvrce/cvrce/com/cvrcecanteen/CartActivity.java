@@ -19,7 +19,8 @@ import java.util.Set;
 
 import static java.security.AccessController.getContext;
 
-public class CartActivity extends AppCompatActivity {
+public class
+CartActivity extends AppCompatActivity {
 
 
     HashMap<String, Integer> quantity;

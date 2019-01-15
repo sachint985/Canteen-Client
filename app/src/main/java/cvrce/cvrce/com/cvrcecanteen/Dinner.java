@@ -107,23 +107,18 @@ public class Dinner extends Fragment {
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            Looper.prepare();
+            if (Looper.myLooper() == null)
+            {
+                Looper.prepare();
+            }
             Log.d("mytag", "Fetch data background");
             StringBuilder sb = new StringBuilder("");
             try {
-                URL url = new URL("http://192.168.43.214/collegecanteen/fetch_todays_meal.php?dinner=1");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setDoOutput(true);
-                connection.setDoInput(true);
-                Log.d("mytag", "Fetch data befor inputstream");
-                InputStream is = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+                BufferedReader reader = InternetData.readData(InternetData.getHTTPConnected(getString(R.string.url)+"fetch_todays_meal.php?dinner=1", true, true, "GET"));
                 String s = "";
-
                 Log.d("mytag", "Fetch data after inputstream");
-
                 while ((s = reader.readLine()) != null) {
-
                     String arr[] = s.split(",");
                     product.add(arr[0]);
                     price.add(Integer.parseInt(arr[3]));
@@ -230,7 +225,6 @@ public class Dinner extends Fragment {
             stepperTouch.stepper.addStepCallback(new OnStepCallback() {
                 @Override
                 public void onStep(int value, boolean positive) {
-                    Toast.makeText(getContext(), value+"", Toast.LENGTH_LONG).show();
                     if(orderQuantity.containsKey(product.get(i))){
                         if(value==0){
                             orderQuantity.remove(product.get(i));
