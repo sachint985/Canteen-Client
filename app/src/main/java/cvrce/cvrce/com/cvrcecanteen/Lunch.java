@@ -2,6 +2,7 @@ package cvrce.cvrce.com.cvrcecanteen;
 
 import android.content.Context;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -69,6 +70,22 @@ public class Lunch extends Fragment {
         loadingView.startAnimation();
         loadingView.setVisibility(View.VISIBLE);
         Log.d("timeItem","OnCreate");
+        Button goToCart = view.findViewById(R.id.goToCartBtn);
+
+        goToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(),CartActivity.class);
+//                cart.putSerializable("price", orderPrice);
+//                cart.putSerializable("quantity", orderQuantity);
+//                i.putExtra("Cart",cart);
+//                Log.d("cartdebug", orderQuantity.toString());
+                i.putExtra("quantity", orderQuantity);
+                i.putExtra("price", orderPrice);
+                i.putExtra("product", orderProduct);
+                startActivity(i);
+            }
+        });
         new Lunch.FetchData().execute();
 
         listLunch = view.findViewById(R.id.list_lunch);
